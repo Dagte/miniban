@@ -39,6 +39,9 @@ This will start a development server at http://127.0.0.1:5001/.
 - Kanban board UI with three columns: To Do, In Progress, Done.
 - Task prioritization (High, Medium, Low).
 - Due date tracking.
+- **Drag-and-drop functionality** to move tasks between columns with automatic status updates.
+- Real-time board refresh after task status changes.
+- Visual feedback during drag operations.
 
 # Usage
 
@@ -56,6 +59,7 @@ This will start a development server at http://127.0.0.1:5001/.
 - Displays tasks in three columns based on their status
 - Shows task title, description, priority, and due date
 - Automatically refreshes to show current task data
+- **Drag-and-drop support**: Click and drag tasks between columns to update their status
 
 ## Quick Start with Sample Data
 
@@ -69,9 +73,38 @@ This will:
 2. Create sample tasks with different statuses and priorities
 3. Open the Kanban board in your default browser
 
+## Using Drag-and-Drop
+
+The Kanban board now supports intuitive drag-and-drop functionality:
+
+1. **Drag**: Click and hold on any task card
+2. **Move**: Drag the task to the desired column (To Do, In Progress, or Done)
+3. **Drop**: Release the mouse button to update the task status
+4. **Refresh**: The board automatically updates to show the task in its new column
+
+**Example workflow:**
+- Drag a task from "To Do" to "In Progress" when you start working on it
+- Drag a task from "In Progress" to "Done" when you complete it
+- Drag a task back to "To Do" if it needs more work
+
+## Testing Drag-and-Drop
+
+Run the comprehensive test to verify the functionality:
+```
+python test_drag_drop.py
+```
+
+This will:
+1. Create a test task
+2. Simulate drag-and-drop operations between all columns
+3. Verify backend updates
+4. Clean up the test task
+
 # Future Plans
-- Add drag-and-drop functionality to move tasks between columns.
+- ✅ **COMPLETED**: Add drag-and-drop functionality to move tasks between columns.
 - Implement task creation form in the UI.
 - Add user authentication and multi-user support.
 - Enhance filtering and search capabilities.
+- Add touch support for mobile devices.
+- Implement undo functionality for accidental drops.
 

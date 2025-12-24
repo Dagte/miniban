@@ -122,6 +122,21 @@
             font-style: italic;
             padding: 20px;
         }
+        
+        .column-content {
+            min-height: 100px;
+        }
+        
+        .task-card.dragging {
+            opacity: 0.5;
+            background-color: #f0f8ff;
+            border: 2px dashed #2196F3;
+        }
+        
+        .column.drag-over {
+            background-color: #f0f8ff;
+            border: 2px solid #2196F3;
+        }
     </style>
 </head>
 <body>
@@ -131,25 +146,25 @@
     
     <div class="kanban-board">
         <!-- To Do Column -->
-        <div class="column">
+        <div class="column" data-status="To Do" ondrop="dropTask(event, 'To Do')" ondragover="allowDrop(event)">
             <div class="column-header">To Do</div>
-            <div id="todo-column">
+            <div id="todo-column" class="column-content">
                 <!-- Tasks will be inserted here by JavaScript -->
             </div>
         </div>
         
         <!-- In Progress Column -->
-        <div class="column">
+        <div class="column" data-status="In Progress" ondrop="dropTask(event, 'In Progress')" ondragover="allowDrop(event)">
             <div class="column-header">In Progress</div>
-            <div id="in-progress-column">
+            <div id="in-progress-column" class="column-content">
                 <!-- Tasks will be inserted here by JavaScript -->
             </div>
         </div>
         
         <!-- Done Column -->
-        <div class="column">
+        <div class="column" data-status="Done" ondrop="dropTask(event, 'Done')" ondragover="allowDrop(event)">
             <div class="column-header">Done</div>
-            <div id="done-column">
+            <div id="done-column" class="column-content">
                 <!-- Tasks will be inserted here by JavaScript -->
             </div>
         </div>
@@ -218,6 +233,18 @@
         function createTaskCard(task) {
             const card = document.createElement('div');
             card.className = 'task-card';
+            card.draggable = true;
+            card.dataset.taskId = task.id;
+            card.dataset.currentStatus = task.status;
+            
+            // Add drag event listeners
+            card.addEventListener('dragstart', function(e) {
+                dragStart(e, task);
+            });
+            
+            card.addEventListener('dragend', function(e) {
+                dragEnd(e);
+            });
             
             const title = document.createElement('div');
             title.className = 'task-title';
@@ -246,6 +273,75 @@
             card.appendChild(meta);
             
             return card;
+        }
+        
+        // Drag and Drop Functions
+        let draggedTask = null;
+        
+        function dragStart(e, task) {
+            draggedTask = task;
+            e.target.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', task.id);
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        
+        function dragEnd(e) {
+            e.target.classList.remove('dragging');
+            // Remove drag-over class from all columns
+            document.querySelectorAll('.column').forEach(col => {
+                col.classList.remove('drag-over');
+            });
+        }
+        
+        function allowDrop(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            
+            // Add visual feedback
+            const column = e.currentTarget;
+            column.classList.add('drag-over');
+        }
+        
+        function dropTask(e, newStatus) {
+            e.preventDefault();
+            
+            // Remove drag-over class from all columns
+            document.querySelectorAll('.column').forEach(col => {
+                col.classList.remove('drag-over');
+            });
+            
+            const taskId = e.dataTransfer.getData('text/plain');
+            const task = draggedTask;
+            
+            if (task && task.status !== newStatus) {
+                // Update task status in backend
+                updateTaskStatus(task.id, newStatus);
+            }
+            
+            draggedTask = null;
+        }
+        
+        async function updateTaskStatus(taskId, newStatus) {
+            try {
+                const response = await fetch(`/tasks/${taskId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({status: newStatus})
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to update task status');
+                }
+                
+                // Refresh the board to show the updated task
+                await fetchAndDisplayTasks();
+                
+            } catch (error) {
+                console.error('Error updating task status:', error);
+                alert('Failed to update task status. Please try again.');
+            }
         }
         
         // Load tasks when page loads
