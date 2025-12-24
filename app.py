@@ -60,5 +60,5 @@ def delete_task(task_id):
 
 if __name__ == '__main__':
     print("Starting the Flask application...")
-    app.run(debug=True)
+    app.run(debug=True, port=5001)
 

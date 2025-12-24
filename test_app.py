@@ -8,6 +8,7 @@ import subprocess
 import time
 import signal
 import os
+import pytest
 
 # Start the Flask application in the background
 def start_flask_app():
@@ -28,7 +29,7 @@ def stop_flask_app(process):
 
 # Test the endpoints
 def test_endpoints():
-    base_url = "http://localhost:5000"
+    base_url = "http://localhost:5001"
     
     # Test GET /tasks
     print("Testing GET /tasks")
@@ -76,7 +77,7 @@ def test_endpoints():
     print(f"Response: {response.json()}")
     print()
 
-if __name__ == "__main__":
+def main():
     # Start the Flask application
     flask_process = start_flask_app()
     
@@ -86,3 +87,22 @@ if __name__ == "__main__":
     finally:
         # Stop the Flask application
         stop_flask_app(flask_process)
+
+# Pytest fixture for Flask app
+@pytest.fixture(scope="module")
+def flask_app():
+    # Start the Flask application
+    flask_process = start_flask_app()
+    
+    yield flask_process
+    
+    # Stop the Flask application
+    stop_flask_app(flask_process)
+
+# Pytest version of the test
+@pytest.mark.usefixtures("flask_app")
+def test_endpoints_pytest():
+    test_endpoints()
+
+if __name__ == "__main__":
+    main()
