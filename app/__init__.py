@@ -1,6 +1,7 @@
 """
 Application factory for Miniban.
-This module creates the Flask application using the factory pattern.
+This module creates the Flask application using the factory pattern
+and exposes the app instance for Gunicorn/WSGI servers.
 """
 
 from flask import Flask
@@ -45,3 +46,8 @@ def create_app(test_config=None):
     app.extensions['task_dao'] = task_dao
     
     return app
+
+
+# Create the application instance for Gunicorn/WSGI
+# This allows Gunicorn to import app:app successfully
+app = create_app()
