@@ -162,6 +162,32 @@ class SupabaseTaskDAO:
         response = self.client.table(self.table_name).select('*').execute()
         return response.data or []
     
+    def update_task(self, task_id, **kwargs):
+        """Update an existing task in Supabase."""
+        if not kwargs:
+            return None
+            
+        # Build the update data
+        update_data = {key: value for key, value in kwargs.items()}
+        
+        # Update the task
+        response = self.client.table(self.table_name).update(update_data).eq('id', task_id).execute()
+        
+        if response.data:
+            return response.data[0]
+        else:
+            return None
+    
+    def get_task(self, task_id):
+        """Get a single task by ID from Supabase."""
+        response = self.client.table(self.table_name).select('*').eq('id', task_id).execute()
+        return response.data[0] if response.data else None
+    
+    def delete_task(self, task_id):
+        """Delete a task from Supabase."""
+        response = self.client.table(self.table_name).delete().eq('id', task_id).execute()
+        return len(response.data) > 0 if response.data else False
+    
     # Add other methods as needed...
 
 
