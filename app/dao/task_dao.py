@@ -26,6 +26,7 @@ class TaskDAO:
         """
         status_mapping = {
             "To Do": TaskStatus.TO_DO,
+            "Planned": TaskStatus.PLANNED,
             "In Progress": TaskStatus.IN_PROGRESS,
             "Done": TaskStatus.DONE
         }

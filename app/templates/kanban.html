@@ -446,6 +446,14 @@
             </div>
         </div>
         
+        <!-- Planned Column -->
+        <div class="column" data-status="Planned" ondrop="dropTask(event, 'Planned')" ondragover="allowDrop(event)">
+            <div class="column-header">Planned</div>
+            <div id="planned-column" class="column-content">
+                <!-- Tasks will be inserted here by JavaScript -->
+            </div>
+        </div>
+        
         <!-- In Progress Column -->
         <div class="column" data-status="In Progress" ondrop="dropTask(event, 'In Progress')" ondragover="allowDrop(event)">
             <div class="column-header">In Progress</div>
@@ -489,6 +497,7 @@
             // Clear existing tasks
             const columns = {
                 'To Do': document.getElementById('todo-column'),
+                'Planned': document.getElementById('planned-column'),
                 'In Progress': document.getElementById('in-progress-column'),
                 'Done': document.getElementById('done-column')
             };
@@ -499,6 +508,7 @@
             // Group tasks by status
             const tasksByStatus = {
                 'To Do': [],
+                'Planned': [],
                 'In Progress': [],
                 'Done': []
             };

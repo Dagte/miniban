@@ -10,6 +10,7 @@ class TaskStatus(Enum):
     Enum representing the possible statuses of a task.
     """
     TO_DO = "To Do"
+    PLANNED = "Planned"
     IN_PROGRESS = "In Progress"
     DONE = "Done"
 
