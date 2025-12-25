@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Miniban - Kanban Board</title>
+    <title>Miniban</title>
     <style>
         * {
             margin: 0;
@@ -18,14 +18,30 @@
         }
         
         .header {
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .header-content {
+            flex: 1;
+            min-width: 300px;
         }
         
         .header h1 {
             color: #333;
             font-size: 28px;
             font-weight: 600;
+            text-align: center;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
         
         .kanban-board {
@@ -87,10 +103,48 @@
             justify-content: space-between;
             font-size: 12px;
             color: #6a737d;
+            margin-top: 10px;
         }
         
+        /* Editable task title styles */
+        .task-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #24292e;
+            cursor: pointer;
+            transition: background-color 0.1s ease;
+            padding: 4px 6px;
+            border-radius: 4px;
+        }
+        
+        .task-title:hover {
+            background-color: #f6f8fa;
+        }
+        
+        .task-title-editing {
+            display: none;
+        }
+        
+        .task-title-input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            box-sizing: border-box;
+        }
+        
+        .task-title-input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+        
+        /* Priority badge styles */
         .priority-badge {
-            padding: 3px 8px;
+            padding: 4px 10px;
             border-radius: 12px;
             font-size: 11px;
             font-weight: 600;
@@ -112,8 +166,210 @@
             color: #2e7d32;
         }
         
+        /* Task card editing state */
+        .task-card.editing-title {
+            background-color: #fffde7;
+            border-color: #ffd54f;
+        }
+        
+
+        
         .due-date {
             font-style: italic;
+        }
+
+        .create-task-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .create-task-btn:hover {
+            background-color: #45a049;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .create-task-btn:active {
+            transform: translateY(0);
+        }
+
+        .create-task-btn .plus-icon {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0;
+            padding: 24px 30px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .modal-header h2 {
+            color: #2c3e50;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            background-color: #ffffff;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #adb5bd;
+            font-style: italic;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            min-width: 100px;
+        }
+
+        .submit-btn:hover {
+            background-color: #45a049;
+            transform: translateY(-1px);
+        }
+
+        .cancel-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            min-width: 100px;
+        }
+
+        .cancel-btn:hover {
+            background-color: #d32f2f;
+            transform: translateY(-1px);
         }
         
         .empty-column {
@@ -141,7 +397,44 @@
 </head>
 <body>
     <div class="header">
-        <h1>Miniban - Kanban Board</h1>
+        <div class="header-content">
+            <h1>Tareas - Miniban</h1>
+        </div>
+        <div class="header-actions">
+            <button id="create-task-btn" class="create-task-btn">
+                <span class="plus-icon">+</span>
+                <span>Create Task</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Task Creation Modal -->
+    <div id="task-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Task</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="modal-body">
+                <form id="task-form">
+                    <div class="form-group">
+                        <label for="task-title">Title*</label>
+                        <input type="text" id="task-title" name="title" required placeholder="Enter task title">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="task-description">Description (Optional)</label>
+                        <textarea id="task-description" name="description" placeholder="Enter task description (optional)"></textarea>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="cancel-btn" id="cancel-btn">Cancel</button>
+                        <button type="submit" class="submit-btn">Create Task</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
     
     <div class="kanban-board">
@@ -246,9 +539,16 @@
                 dragEnd(e);
             });
             
-            const title = document.createElement('div');
-            title.className = 'task-title';
-            title.textContent = task.title;
+            // Title element with inline editing
+            const titleContainer = document.createElement('div');
+            titleContainer.className = 'task-title';
+            titleContainer.textContent = task.title;
+            
+            // Make title editable on click
+            titleContainer.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent triggering card drag
+                startEditingTitle(card, task);
+            });
             
             const description = document.createElement('div');
             description.className = 'task-description';
@@ -257,6 +557,7 @@
             const meta = document.createElement('div');
             meta.className = 'task-meta';
             
+            // Priority badge (static, no dropdown)
             const priorityBadge = document.createElement('span');
             priorityBadge.className = `priority-badge priority-${task.priority.toLowerCase()}`;
             priorityBadge.textContent = task.priority;
@@ -268,7 +569,7 @@
             meta.appendChild(priorityBadge);
             meta.appendChild(dueDate);
             
-            card.appendChild(title);
+            card.appendChild(titleContainer);
             card.appendChild(description);
             card.appendChild(meta);
             
@@ -344,8 +645,167 @@
             }
         }
         
-        // Load tasks when page loads
-        document.addEventListener('DOMContentLoaded', fetchAndDisplayTasks);
+        // Task Editing Functions
+        function startEditingTitle(card, task) {
+            const titleElement = card.querySelector('.task-title');
+            const currentTitle = titleElement.textContent;
+            
+            // Create input field
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'task-title-input';
+            input.value = currentTitle;
+            
+            // Replace title with input field
+            titleElement.textContent = '';
+            titleElement.appendChild(input);
+            input.focus();
+            
+            // Add editing class to card
+            card.classList.add('editing-title');
+            
+            // Handle input events
+            input.addEventListener('blur', function() {
+                saveTitleEdit(card, task, input);
+            });
+            
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    saveTitleEdit(card, task, input);
+                } else if (e.key === 'Escape') {
+                    cancelTitleEdit(card, titleElement, currentTitle);
+                }
+            });
+        }
+        
+        function saveTitleEdit(card, task, input) {
+            const newTitle = input.value.trim();
+            if (newTitle && newTitle !== task.title) {
+                updateTaskTitle(task.id, newTitle, card);
+            } else {
+                cancelTitleEdit(card, card.querySelector('.task-title'), task.title);
+            }
+        }
+        
+        function cancelTitleEdit(card, titleElement, originalTitle) {
+            titleElement.textContent = originalTitle;
+            card.classList.remove('editing-title');
+        }
+        
+        async function updateTaskTitle(taskId, newTitle, card) {
+            try {
+                const response = await fetch(`/tasks/${taskId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({title: newTitle})
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to update task title');
+                }
+                
+                // Update the title in the card
+                const titleElement = card.querySelector('.task-title');
+                titleElement.textContent = newTitle;
+                card.classList.remove('editing-title');
+                
+            } catch (error) {
+                console.error('Error updating task title:', error);
+                alert('Failed to update task title. Please try again.');
+                // Revert to original title
+                cancelTitleEdit(card, card.querySelector('.task-title'), card.dataset.originalTitle);
+            }
+        }
+        
+
+        
+        // Task Creation Modal Functions
+        function openTaskModal() {
+            const modal = document.getElementById('task-modal');
+            modal.style.display = 'block';
+        }
+
+        function closeTaskModal() {
+            const modal = document.getElementById('task-modal');
+            modal.style.display = 'none';
+            // Reset form
+            document.getElementById('task-form').reset();
+        }
+
+        // Handle form submission
+        async function handleTaskFormSubmit(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const formData = new FormData(form);
+            
+            const taskData = {
+                title: formData.get('title'),
+                description: formData.get('description'),
+                status: 'To Do',  // Default status
+                priority: 'Medium',  // Default priority
+                due_date: null  // No due date by default
+            };
+            
+            try {
+                const response = await fetch('/tasks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(taskData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to create task');
+                }
+                
+                // Close modal and refresh tasks
+                closeTaskModal();
+                await fetchAndDisplayTasks();
+                
+            } catch (error) {
+                console.error('Error creating task:', error);
+                alert('Failed to create task. Please try again.');
+            }
+        }
+
+        // Event Listeners for Modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const createTaskBtn = document.getElementById('create-task-btn');
+            const closeBtn = document.querySelector('.close');
+            const cancelBtn = document.getElementById('cancel-btn');
+            const taskForm = document.getElementById('task-form');
+            
+            if (createTaskBtn) {
+                createTaskBtn.addEventListener('click', openTaskModal);
+            }
+            
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeTaskModal);
+            }
+            
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', closeTaskModal);
+            }
+            
+            if (taskForm) {
+                taskForm.addEventListener('submit', handleTaskFormSubmit);
+            }
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('task-modal');
+                if (event.target === modal) {
+                    closeTaskModal();
+                }
+            });
+            
+            // Load tasks when page loads
+            fetchAndDisplayTasks();
+        });
     </script>
 </body>
 </html>
