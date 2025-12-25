@@ -59,7 +59,9 @@ def create_app(test_config=None):
     
     # Create appropriate TaskDAO based on database type
     if isinstance(db_connection, sqlite3.Connection):
-        task_dao = SQLiteTaskDAO(db_connection)
+        # Get the database path from the connection
+        db_path = os.getenv('DATABASE', 'instance/miniban.sqlite')
+        task_dao = SQLiteTaskDAO(db_path)
         print("📊 Using SQLite TaskDAO")
     else:
         # Supabase client

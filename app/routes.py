@@ -37,7 +37,7 @@ def create_task():
     due_date = data.get('due_date')
     
     task = task_dao.create_task(title, description, status, priority, due_date)
-    return jsonify(task.to_dict()), 201
+    return jsonify(task), 201
 
 @bp.route('/tasks/<int:task_id>', methods=['GET'])
 def get_task(task_id):
@@ -45,7 +45,7 @@ def get_task(task_id):
     task_dao = current_app.extensions.get('task_dao')
     task = task_dao.get_task(task_id)
     if task:
-        return jsonify(task.to_dict())
+        return jsonify(task)
     else:
         return jsonify({"error": "Task not found"}), 404
 
@@ -56,7 +56,7 @@ def update_task(task_id):
     data = request.get_json()
     task = task_dao.update_task(task_id, **data)
     if task:
-        return jsonify(task.to_dict())
+        return jsonify(task)
     else:
         return jsonify({"error": "Task not found"}), 404
 

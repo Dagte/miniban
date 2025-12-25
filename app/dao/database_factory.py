@@ -80,8 +80,14 @@ class DatabaseFactory:
         if db_dir and not os.path.exists(db_dir):
             os.makedirs(db_dir, exist_ok=True)
         
-        # Create and return SQLite connection
-        conn = sqlite3.connect(db_path)
+        # Create SQLite connection with thread-safe settings
+        # Enable check_same_thread=False to allow connection to be used across threads
+        # Enable isolation_level=None for autocommit mode (better for web apps)
+        conn = sqlite3.connect(
+            db_path,
+            check_same_thread=False,  # Allow connection to be used across threads
+            isolation_level=None  # Use autocommit mode
+        )
         conn.row_factory = sqlite3.Row  # Return rows as dictionaries
         
         # Initialize database schema if needed
@@ -162,58 +168,88 @@ class SupabaseTaskDAO:
 class SQLiteTaskDAO:
     """Task DAO implementation for SQLite."""
     
-    def __init__(self, conn: sqlite3.Connection):
-        self.conn = conn
+    def __init__(self, db_path: str):
+        self.db_path = db_path
+    
+    def _get_connection(self):
+        """Get a new SQLite connection for each operation."""
+        conn = sqlite3.connect(
+            self.db_path,
+            check_same_thread=False,
+            isolation_level=None
+        )
+        conn.row_factory = sqlite3.Row
+        return conn
     
     def create_task(self, title, description="", status="To Do", priority="Medium", due_date=None):
         """Create a new task in SQLite."""
-        cursor = self.conn.cursor()
-        cursor.execute('''
+        conn = self._get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute('''
             INSERT INTO tasks (title, description, status, priority, due_date)
             VALUES (?, ?, ?, ?, ?)
         ''', (title, description, status, priority, due_date))
         
-        self.conn.commit()
+            conn.commit()
         
-        # Return the created task
-        task_id = cursor.lastrowid
-        return self.get_task(task_id)
+            # Return the created task
+            task_id = cursor.lastrowid
+            return self.get_task(task_id)
+        finally:
+            conn.close()
     
     def get_task(self, task_id):
         """Get a single task by ID."""
-        cursor = self.conn.cursor()
-        cursor.execute('SELECT * FROM tasks WHERE id = ?', (task_id,))
-        row = cursor.fetchone()
-        return dict(row) if row else None
+        conn = self._get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM tasks WHERE id = ?', (task_id,))
+            row = cursor.fetchone()
+            return dict(row) if row else None
+        finally:
+            conn.close()
     
     def get_all_tasks(self):
         """Get all tasks from SQLite."""
-        cursor = self.conn.cursor()
-        cursor.execute('SELECT * FROM tasks')
-        return [dict(row) for row in cursor.fetchall()]
+        conn = self._get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM tasks')
+            return [dict(row) for row in cursor.fetchall()]
+        finally:
+            conn.close()
     
     def update_task(self, task_id, **kwargs):
         """Update an existing task."""
         if not kwargs:
             return None
         
-        cursor = self.conn.cursor()
-        
-        # Build the update query dynamically
-        set_clause = ', '.join([f"{key} = ?" for key in kwargs.keys()])
-        values = list(kwargs.values())
-        values.append(task_id)
-        
-        query = f"UPDATE tasks SET {set_clause} WHERE id = ?"
-        cursor.execute(query, values)
-        
-        self.conn.commit()
-        
-        return self.get_task(task_id)
+        conn = self._get_connection()
+        try:
+            cursor = conn.cursor()
+            
+            # Build the update query dynamically
+            set_clause = ', '.join([f"{key} = ?" for key in kwargs.keys()])
+            values = list(kwargs.values())
+            values.append(task_id)
+            
+            query = f"UPDATE tasks SET {set_clause} WHERE id = ?"
+            cursor.execute(query, values)
+            
+            conn.commit()
+            
+            return self.get_task(task_id)
+        finally:
+            conn.close()
     
     def delete_task(self, task_id):
         """Delete a task."""
-        cursor = self.conn.cursor()
-        cursor.execute('DELETE FROM tasks WHERE id = ?', (task_id,))
-        self.conn.commit()
-        return cursor.rowcount > 0
+        conn = self._get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute('DELETE FROM tasks WHERE id = ?', (task_id,))
+            conn.commit()
+            return cursor.rowcount > 0
+        finally:
+            conn.close()

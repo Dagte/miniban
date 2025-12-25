@@ -27,7 +27,15 @@ try:
     print("📝 Press Ctrl+C to stop the server")
     
     # Run the application
-    app.run(debug=True, port=5001)
+    # Disable reloader and use single thread to avoid SQLite threading issues
+    # Also set thread_safe_context_manager to False for better compatibility
+    app.run(
+        debug=True, 
+        port=5001, 
+        use_reloader=False, 
+        threaded=False,
+        use_debugger=True
+    )
     
 except ImportError as e:
     print(f"❌ Import error: {e}")
