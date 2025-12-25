@@ -8,7 +8,6 @@ import os
 import sqlite3
 from flask import Flask
 from dotenv import load_dotenv
-=======
 
 
 def create_app(test_config=None):
@@ -44,7 +43,6 @@ def create_app(test_config=None):
     
     # Ensure instance folder exists
     try:
-        import os
         os.makedirs(app.instance_path, exist_ok=True)
     except OSError:
         pass

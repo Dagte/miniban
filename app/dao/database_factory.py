@@ -76,7 +76,6 @@ class DatabaseFactory:
         db_path = os.getenv('DATABASE', 'instance/miniban.sqlite')
         
         # Ensure instance folder exists
-        import os
         db_dir = os.path.dirname(db_path)
         if db_dir and not os.path.exists(db_dir):
             os.makedirs(db_dir, exist_ok=True)
