@@ -67,6 +67,9 @@
             color: #333;
             padding-bottom: 10px;
             border-bottom: 2px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .task-card {
@@ -210,6 +213,41 @@
             position: relative;
         }
 
+        /* Small create task button for column header */
+        .create-task-btn-small {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .create-task-btn-small:hover {
+            background-color: #45a049;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .create-task-btn-small:active {
+            transform: translateY(0);
+        }
+
+        .create-task-btn-small .plus-icon {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* Original large create task button (kept for reference) */
         .create-task-btn {
             background-color: #4CAF50;
             color: white;
@@ -432,12 +470,6 @@
         <div class="header-content">
             <h1>Tareas - Miniban</h1>
         </div>
-        <div class="header-actions">
-            <button id="create-task-btn" class="create-task-btn">
-                <span class="plus-icon">+</span>
-                <span>Create Task</span>
-            </button>
-        </div>
     </div>
     
     <!-- Task Creation Modal -->
@@ -472,7 +504,12 @@
     <div class="kanban-board">
         <!-- To Do Column -->
         <div class="column" data-status="To Do" ondrop="dropTask(event, 'To Do')" ondragover="allowDrop(event)">
-            <div class="column-header">To Do</div>
+            <div class="column-header">
+                To Do
+                <button id="create-task-btn" class="create-task-btn-small">
+                    <span class="plus-icon">+</span>
+                </button>
+            </div>
             <div id="todo-column" class="column-content">
                 <!-- Tasks will be inserted here by JavaScript -->
             </div>
